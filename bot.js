@@ -74,7 +74,8 @@ class Bot {
     }
 
     async roll(data) {
-        logger.info("Rolling ", data)
+        logger.info("Received roll request for character : ", data && data.character && data.character.name ? data.character.name : "Unknown");
+        logger.debug("Roll data", data);
         let channelID = null;
         try {
             channelID = crypt.decrypt(data.secret);
@@ -89,7 +90,7 @@ class Bot {
         const rollEmbed = new Discord.MessageEmbed()
             .setTitle(data.title)
             .setURL('https://beyond20.here-for-more.info/discord')
-            .setThumbnail("https://beyond20.here-for-more.info/images/icon32.png") // TODO: Replace with roll avatar
+            .setThumbnail(data.request.preview)
             .setFooter('Rolled using Beyond 20', 'https://beyond20.here-for-more.info/images/icon128.png')
         if (data.request.character.name)
             rollEmbed.setAuthor(data.request.character.name, data.request.character.avatar, data.request.character.url || 'https://beyond20.here-for-more.info/')
@@ -183,7 +184,11 @@ class Bot {
             rollEmbed.addField(`**Total ${name} :** ${detail}`, spoiler)
         }
 
-        channel.send(rollEmbed);
+        try {
+            await channel.send(rollEmbed);
+        } catch (err) {
+            return {error: `Error sending message : ${err}`}
+        }
         return {}
     }
 }

@@ -19,7 +19,9 @@ class Server {
 
         app.use(logger('dev'));
         app.use(bodyParser.json());
-        app.use('/', express.static(path.join(__dirname, 'public'), { maxAge: 31557600000 }));
+        app.get('/', (req, res, next)  => {
+            res.redirect(process.env.MAIN_URL)
+        });
 
         app.get("/invite", (req, res, next) => {
             res.redirect(process.env.INVITE_URL);
@@ -46,7 +48,7 @@ class Server {
             res.locals.message = err.message;
             res.locals.error = req.app.get('env') === 'development' ? err : {};
             res.status(err.status || 500);
-            res.render('error');
+            res.send('error');
             });
         }
     }
