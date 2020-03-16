@@ -2,7 +2,6 @@ const http = require("http");
 const express = require('express');
 const bodyParser = require('body-parser');
 const logger = require('morgan');
-const path = require('path');
 const errorHandler = require('errorhandler');
 const createError = require('http-errors');
 const cors = require('cors')({origin: true, credentials: true})

@@ -1,5 +1,5 @@
-const dotenv = require('dotenv').config({ path: '.env' })
-const config = require('dotenv-expand')(dotenv);
+require('dotenv-expand')(require('dotenv').config({ path: '.env' }));
+
 const express = require("./express");
 
 const app = new express()

@@ -52,7 +52,7 @@ class Bot {
         const owner = isDM ? message.author.id : message.channel.guild.ownerID;
         if (message.author.id !== owner)
             return message.channel.send(`Only the server owner can use this command.`, {reply: message});
-        const dm = isDM ? message.channel : await this.client.users.resolve(message.channel.guild.ownerID).createDM();
+        const dm = isDM ? message.channel : await this.client.users.resolve(owner).createDM();
         
         if (dm) {
             const secret = crypt.encrypt(message.channel.id);
@@ -102,7 +102,7 @@ class Bot {
                 description += `__${attr}__ : _${data.attributes[attr]}_\n`
             description += (description != "" ? "\n" : "") + turndownService.turndown(data.description)
             if (description.length >= 2048)
-                description = description.substr(0, 2045) + "..."
+                description = description.substr(0, 2040) + "\n**...**"
             rollEmbed.setDescription(description)
         }
         for (let [name, value] of data.roll_info)
@@ -110,7 +110,7 @@ class Bot {
 
         const rollToDetails = (roll) => {
             if (roll.discarded) return `~~${roll.total}~~`;
-            let string = String(roll.total).replace(/-/g, ':heavy_minus_sign:')
+            let string = String(roll.total).replace(/-/g, ':no_entry:')
                 .replace(/\+/g, ':heavy_plus_sign:')
                 .replace(/10/g, ':keycap_ten:')
                 .replace(/1/g, ':one:')
