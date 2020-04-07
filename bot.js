@@ -109,8 +109,9 @@ class Bot {
             rollEmbed.addField(name, value)
 
         const rollToDetails = (roll) => {
-            if (roll.discarded) return `~~${roll.total}~~`;
-            let string = String(roll.total).replace(/-/g, ':no_entry:')
+            const total = roll.total || 0;
+            if (roll.discarded) return `~~${total}~~`;
+            let string = String(total).replace(/-/g, ':no_entry:')
                 .replace(/\+/g, ':heavy_plus_sign:')
                 .replace(/10/g, ':keycap_ten:')
                 .replace(/1/g, ':one:')
@@ -128,9 +129,11 @@ class Bot {
             return string;
         }
         const rollToSpoiler = (roll) => {
-            let result =  `||:game_die: ${roll.formula} :arrow_right: `;
+            const formula = roll.formula || "";
+            const parts = roll.parts || [];
+            let result =  `||:game_die: ${formula} :arrow_right: `;
             let plus = '';
-            for (let part of roll.parts) {
+            for (let part of parts) {
                 if (part.rolls) {
                     result += `${plus}(`
                     let part_plus = '';
@@ -170,7 +173,7 @@ class Bot {
             rollEmbed.addField(rollToDetails(attack), rollToSpoiler(attack), true)
         }
         for (let [name, roll, flags] of data.damage_rolls) {
-            if (roll.formula === undefined) {
+            if (typeof(roll) === "string") {
                 rollEmbed.addField(name, roll)
             } else {
                 const detail = rollToDetails(roll)
