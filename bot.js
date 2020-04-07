@@ -170,12 +170,12 @@ class Bot {
             rollEmbed.addField(rollToDetails(attack), rollToSpoiler(attack), true)
         }
         for (let [name, roll, flags] of data.damage_rolls) {
-            if (roll.formula) {
+            if (roll.formula === undefined) {
+                rollEmbed.addField(name, roll)
+            } else {
                 const detail = rollToDetails(roll)
                 const spoiler = rollToSpoiler(roll)
                 rollEmbed.addField(`**${name.trim()} :** ${detail}`, spoiler)
-            } else {
-                rollEmbed.addField(name, roll)
             }
         }
         for (let name in data.total_damages) {
