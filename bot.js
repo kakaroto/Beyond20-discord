@@ -20,7 +20,8 @@ class Bot {
 
     async _onMessageReceived(message) {
         const prefix = message.channel.type === "dm" ? "" : process.env.BEYOND20_MESSAGE_PREFIX;
-        
+
+        if (process.env.RESTRICT_TO_AUTHOR && message.author.id !== process.env.RESTRICT_TO_AUTHOR) return;
         if (message.author.bot || !message.content.startsWith(prefix)) return;
         const from = message.channel.type === "dm" ? `from ${message.author.username}` : `on '${message.channel.guild.name}'#${message.channel.name}`
         logger.debug(`Received message ${from} (${message.channel.type})  : ${message.content}`);
@@ -74,6 +75,7 @@ class Bot {
     }
 
     async roll(data) {
+        if (process.env.RESTRICT_TO_SECRET && data.secret !== process.env.RESTRICT_TO_SECRET) return;
         logger.info("Received roll request for character : ", data && data.character && data.character.name ? data.character.name : "Unknown");
         logger.debug("Roll data", data);
         let channelID = null;
