@@ -103,14 +103,15 @@ class Bot {
         }
 
         const title = data.request.whisper === WhisperType.HIDE_NAMES ? "???" : data.title;
+        const url = (data.request.whisper === WhisperType.NO ? data.request.character.url : null) || 'https://beyond20.here-for-more.info/'
         const rollEmbed = new Discord.MessageEmbed()
             .setTitle(title)
-            .setURL('https://beyond20.here-for-more.info/discord')
+            .setURL(url)
             .setFooter('Rolled using Beyond 20', 'https://beyond20.here-for-more.info/images/icon128.png')
         if (data.request.whisper === WhisperType.NO)
             rollEmbed.setThumbnail(data.request.preview)
         if (data.request.character.name && data.request.whisper !== WhisperType.HIDE_NAMES)
-            rollEmbed.setAuthor(data.request.character.name, data.request.character.avatar, data.request.character.url || 'https://beyond20.here-for-more.info/')
+            rollEmbed.setAuthor(data.request.character.name, data.request.character.avatar, url)
         if (data.description && data.open && data.request.whisper !== WhisperType.HIDE_NAMES) {
             let description = ''
             if (data.source)
@@ -146,7 +147,7 @@ class Bot {
             return string;
         }
         const rollToSpoiler = (roll) => {
-            if (data.request.whisper !== WhisperType.NO) return '||:game_die:||'
+            if (data.request.whisper === WhisperType.HIDE_NAMES) return '||:game_die:||'
             const formula = roll.formula || "";
             const parts = roll.parts || [];
             let result =  `||:game_die: ${formula} :arrow_right: `;
