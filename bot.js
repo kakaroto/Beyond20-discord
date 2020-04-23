@@ -2,6 +2,8 @@ const logger = require("./logger");
 const Discord = require("discord.js");
 const TurndownService = require('turndown')
 const Cryptr = require("cryptr");
+const { WhisperType } = require("./constants");
+
 const crypt = new Cryptr(process.env.SECRET_KEY_CHANNEL_PASSWORD);
 
 const turndownService = new TurndownService()
@@ -100,14 +102,16 @@ class Bot {
             return {}
         }
 
+        const title = data.request.whisper === WhisperType.HIDE_NAMES ? "???" : data.title;
         const rollEmbed = new Discord.MessageEmbed()
-            .setTitle(data.title)
+            .setTitle(title)
             .setURL('https://beyond20.here-for-more.info/discord')
-            .setThumbnail(data.request.preview)
             .setFooter('Rolled using Beyond 20', 'https://beyond20.here-for-more.info/images/icon128.png')
-        if (data.request.character.name)
+        if (data.request.whisper === WhisperType.NO)
+            rollEmbed.setThumbnail(data.request.preview)
+        if (data.request.character.name && data.request.whisper !== WhisperType.HIDE_NAMES)
             rollEmbed.setAuthor(data.request.character.name, data.request.character.avatar, data.request.character.url || 'https://beyond20.here-for-more.info/')
-        if (data.description && data.open) {
+        if (data.description && data.open && data.request.whisper !== WhisperType.HIDE_NAMES) {
             let description = ''
             if (data.source)
                 description += `**${data.source}**\n`
@@ -142,6 +146,7 @@ class Bot {
             return string;
         }
         const rollToSpoiler = (roll) => {
+            if (data.request.whisper !== WhisperType.NO) return '||:game_die:||'
             const formula = roll.formula || "";
             const parts = roll.parts || [];
             let result =  `||:game_die: ${formula} :arrow_right: `;
