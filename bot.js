@@ -89,6 +89,17 @@ class Bot {
             channel = await this.client.channels.fetch(channelID);
         if (!channel)
             return {error: "This key is invalid or the Beyond20 Discord Bot is not in the channel anymore."};
+
+        if (data.request.type === "avatar") {
+            const imageMessage = new Discord.MessageAttachment(data.request.character.avatar);
+            try {
+                await channel.send(imageMessage);
+            } catch (err) {
+                return {error: `Error sending message : ${err}`}
+            }
+            return {}
+        }
+
         const rollEmbed = new Discord.MessageEmbed()
             .setTitle(data.title)
             .setURL('https://beyond20.here-for-more.info/discord')
