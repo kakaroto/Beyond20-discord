@@ -53,6 +53,9 @@ class Bot {
     command_ping(message) {
         message.channel.send("pong!", {reply: message});
     }
+	command_stats(message) {
+		message.channel.send(`Server count: ${this.client.guilds.cache.size}`);
+	}
     async command_secret(message) {
         const isDM = message.channel.type === "dm";
         const owner = isDM ? message.author.id : message.channel.guild.ownerID;
