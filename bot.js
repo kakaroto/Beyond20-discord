@@ -10,10 +10,13 @@ const turndownService = new TurndownService()
 
 class Bot {
     constructor() {
-        this.client = new Discord.Client();
+        this.client = new Discord.Client({shards: "auto"});
 
         this.client.once('ready', async () => {
             logger.info(`Logged in as ${this.client.user.username}!`);
+        });
+        this.client.on('shardReady', async (id) => {
+            logger.info(`Shard ${id} is now ready!`);
         });
         this.client.on('message', this._onMessageReceived.bind(this));
         this.client.on('messageReactionAdd', this._onMessageReactionAdded.bind(this));
