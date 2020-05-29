@@ -117,15 +117,28 @@ class Bot {
     }
 
     async roll(data) {
-        if (process.env.RESTRICT_TO_SECRET && data.secret !== process.env.RESTRICT_TO_SECRET) return;
-        logger.info("Received roll request for character : ", data && data.character && data.character.name ? data.character.name : "Unknown");
+        if (process.env.RESTRICT_TO_SECRET && data.secret !== process.env.RESTRICT_TO_SECRET) throw new Error("Invalid restricted secret");
+        logger.info("Received roll request for character : " + data && data.request.character && data.request.character.name ? data.request.character.name : "Unknown");
         logger.debug("Roll data", data);
+        let secret = null;
         let channelID = null;
+        let options = "";
         try {
-            channelID = crypt.decrypt(data.secret);
+            secret = crypt.decrypt(data.secret);
         } catch (err) {}
-        if (!channelID)
+        if (!secret)
             return {error: "An invalid Secret Key was provided"};
+        try {
+            const json = JSON.parse(secret);
+            channelID = json.destination || secret;
+            if (data.request.whisper === WhisperType.YES && json.whisper) {
+                channelID = json.whisper;
+                data.request.whisper = WhisperType.NO;
+            }
+            options = json.options || "";
+        } catch(err) {
+            channelID = secret;
+        }
         let channel = this.client.channels.resolve(channelID);
         if (!channel)
             channel = await this.client.channels.fetch(channelID);
