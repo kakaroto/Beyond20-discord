@@ -200,10 +200,12 @@ class Bot {
             return string;
         }
         const rollToSpoiler = (roll) => {
-            if (data.request.whisper === WhisperType.HIDE_NAMES) return '||:game_die:||'
+            const nospoiler = options.includes("nospoilers");
+            if (data.request.whisper === WhisperType.HIDE_NAMES) return nospoiler ? ':game_die:' : '||:game_die:||'
             const formula = roll.formula || "";
             const parts = roll.parts || [];
-            let result =  `||:game_die: ${formula} :arrow_right: `;
+            let result = nospoiler ? "" : `||`;
+            result += `:game_die: ${formula} :arrow_right: `;
             let plus = '';
             for (let part of parts) {
                 if (part.rolls) {
@@ -228,7 +230,8 @@ class Bot {
                 }
                 plus = ' + ';
             }
-            result += '||';
+            if (!nospoiler)
+                result += '||';
             return result;
         };
         const critical_success = data.attack_rolls.some(roll => !roll.discarded && roll['critical-success']);
