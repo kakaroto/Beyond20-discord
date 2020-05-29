@@ -41,13 +41,13 @@ class Bot {
                 await this[`command_${command}`](message, ...args)
         } catch (err) {
             try {
-                message.channel.send('Error executing command.', {reply: message})
+                message.channel.send('Error executing command : ' + err.message, {reply: message})
             } catch {}
             logger.error(err);
         }
     }
     _onMessageReactionAdded(messageReaction, user) {
-        logger.debug(`Message reaction added by ${user.username} : ${messageReaction.emoji.name}`);
+        //logger.debug(`Message reaction added by ${user.username} : ${messageReaction.emoji.name}`);
     }
 
     command_ping(message) {
