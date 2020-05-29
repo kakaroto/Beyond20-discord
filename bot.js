@@ -55,17 +55,51 @@ class Bot {
     }
 	command_stats(message) {
 		message.channel.send(`Server count: ${this.client.guilds.cache.size}`);
-	}
-    async command_secret(message) {
+    }
+    
+    async getMentionFromMessage(message, destination) {
+        const isChannel = destination.startsWith("<#") && destination.endsWith(">");
+        const isUser = destination.startsWith("<@") && !destination.startsWith("<@&") && destination.endsWith(">");
+        if (!isChannel && !isUser)
+            throw new Error("Invalid syntax. Argument must be a channel or a user.")
+        if (isChannel) {
+            const channel = destination.slice(2, -1);
+            if (!message.mentions.channels.has(channel))
+                throw new Error("Invalid syntax. Destination channel must be in this server.")
+            destination = channel;
+        }
+        if (isUser) {
+            const user = destination.slice(destination[2] === '!' ? 3 : 2, -1);
+            if (!message.mentions.users.has(user))
+                throw new Error("Invalid syntax. Destination user must be in this server.")
+            const dm = await this.client.users.resolve(user).createDM();
+            destination = dm.id;
+        }
+        return destination;
+    }
+    async command_secret(message, rollDestination, whisper, whisperDestination, options="") {
         const isDM = message.channel.type === "dm";
         const owner = isDM ? message.author.id : message.channel.guild.ownerID;
         if (message.author.id !== owner)
             return message.channel.send(`Only the server owner can use this command.`, {reply: message});
         const dm = isDM ? message.channel : await this.client.users.resolve(owner).createDM();
-        
+        let destination = message.channel.id;
+        if (rollDestination) {
+            if (isDM)
+                throw new Error("Invalid syntax. Can only mention destination when used in a server.");
+            destination = await this.getMentionFromMessage(message, rollDestination);
+        }
+        if (whisper && whisper !== "whisper")
+            throw new Error("Third argument can only be set to 'whisper'");
+        if (whisper)
+            whisperDestination = await this.getMentionFromMessage(message, whisperDestination);
+        else
+            whisperDestination = null;
+
         if (dm) {
-            const secret = crypt.encrypt(message.channel.id);
-            const to = isDM ? 'this channel' : `the channel #${message.channel.name}`;
+            const plainSecret = {destination, whisper: whisperDestination, options};
+            const secret = crypt.encrypt(JSON.stringify(plainSecret));
+            const to = isDM ? 'this channel' : (rollDestination ? `your selection` : `the channel #${message.channel.name}`);
             try {
                 await dm.send(`The secret key to send the Beyond20 rolls to ${to} is : \`${secret}\`\nYou can share it with your party as anyone with the key can send rolls to the channel.`);
             } catch (err) {
