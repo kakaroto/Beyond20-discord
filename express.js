@@ -5,7 +5,7 @@ const logger = require('morgan');
 const errorHandler = require('errorhandler');
 const createError = require('http-errors');
 const cors = require('cors')({origin: true, credentials: true})
-const bot = require("./bot");
+const bot = require("./sharding");
 
 class Server {
     constructor() {

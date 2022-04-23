@@ -58,10 +58,10 @@ class Bot {
         }
     }
 
-    async roll(data) {
+
+    static parseToChannel(data) {
         if (process.env.RESTRICT_TO_SECRET && data.secret !== process.env.RESTRICT_TO_SECRET) throw new Error("Invalid restricted secret");
-        logger.info("Received roll request for character : " + data && data.request.character && data.request.character.name ? data.request.character.name : "Unknown");
-        logger.debug("Roll data", data);
+
         let secret = null;
         let channelID = null;
         let options = "";
@@ -83,12 +83,23 @@ class Bot {
         } catch(err) {
             channelID = secret;
         }
+        return {channelID, options};
+    }
+
+    async roll(data) {
+        const {channelID, options} = this.constructor.parseToChannel(data);
+        return this.rollToChannel(data, channelID, options);
+    }
+    async rollToChannel(data, channelID, options) {
+        console.log("Got roll to channel ", channelID);
         let channel = this.client.channels.resolve(channelID);
         if (!channel)
             channel = await this.client.channels.fetch(channelID);
         if (!channel)
-            return {error: "This key is invalid or the Beyond20 Discord Bot is not in the channel anymore."};
+            return {error: "This key is invalid or the Beyond20 Discord Bot is not in the channel anymore.", noguild: true};
 
+        logger.info("Received roll request for character : " + data && data.request.character && data.request.character.name ? data.request.character.name : "Unknown");
+        logger.debug("Roll data", data);
         if (data.request.type === "avatar") {
             try {
                 await channel.send({files: [data.request.character.avatar]});
@@ -206,7 +217,7 @@ class Bot {
         }
 
         try {
-            await channel.send(rollEmbed);
+            await channel.send({embeds: [rollEmbed]});
         } catch (err) {
             return {error: `Error sending message : ${err}`}
         }
