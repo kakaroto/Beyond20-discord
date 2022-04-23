@@ -3,7 +3,7 @@ const Bot = require("./bot");
 
 class ShardedBot {
     constructor() {
-        this.manager = new ShardingManager('./shard.js', { token: process.env.BOT_TOKEN, totalShards: 1 });
+        this.manager = new ShardingManager('./shard.js', { token: process.env.BOT_TOKEN });
 
         this.manager.on('shardCreate', shard => console.log(`Launched shard ${shard.id}`));
 
