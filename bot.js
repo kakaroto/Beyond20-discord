@@ -91,7 +91,6 @@ class Bot {
         return this.rollToChannel(data, channelID, options);
     }
     async rollToChannel(data, channelID, options) {
-        console.log("Got roll to channel ", channelID);
         let channel = this.client.channels.resolve(channelID);
         if (!channel)
             channel = await this.client.channels.fetch(channelID);
