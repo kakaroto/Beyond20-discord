@@ -12,10 +12,9 @@ LOG_LEVEL=info
 
 CLIENT_ID=<client id>
 BOT_INVITE_PERMISSIONS=2112
-INVITE_URL=https://discordapp.com/oauth2/authorize?&client_id=${CLIENT_ID}&scope=bot&permissions=${BOT_INVITE_PERMISSIONS}
+INVITE_URL=https://discordapp.com/oauth2/authorize?&client_id=${CLIENT_ID}&scope=bot%20applications.commands&permissions=${BOT_INVITE_PERMISSIONS}
 MAIN_URL=https://beyond20.here-for-more.info/discord
 BOT_TOKEN=<bot token>
 
-BEYOND20_MESSAGE_PREFIX=!beyond20
 SECRET_KEY_CHANNEL_PASSWORD=<secret encryption key>
 ```
