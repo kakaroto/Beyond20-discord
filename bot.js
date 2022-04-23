@@ -90,9 +90,8 @@ class Bot {
             return {error: "This key is invalid or the Beyond20 Discord Bot is not in the channel anymore."};
 
         if (data.request.type === "avatar") {
-            const imageMessage = new Discord.MessageAttachment(data.request.character.avatar);
             try {
-                await channel.send(imageMessage);
+                await channel.send({files: [data.request.character.avatar]});
             } catch (err) {
                 return {error: `Error sending message : ${err}`}
             }
@@ -104,11 +103,11 @@ class Bot {
         const rollEmbed = new Discord.MessageEmbed()
             .setTitle(title)
             .setURL(url)
-            .setFooter('Rolled using Beyond 20', 'https://beyond20.here-for-more.info/images/icon128.png')
+            .setFooter({text: 'Rolled using Beyond 20', iconURL: 'https://beyond20.here-for-more.info/images/icon128.png'})
         if (data.request.whisper === WhisperType.NO)
             rollEmbed.setThumbnail(data.request.preview)
         if (data.request.character.name && data.request.whisper !== WhisperType.HIDE_NAMES)
-            rollEmbed.setAuthor(data.request.character.name, data.request.character.avatar, url)
+            rollEmbed.setAuthor({name: data.request.character.name, iconURL: data.request.character.avatar, url})
         if (data.description && data.open && data.request.whisper !== WhisperType.HIDE_NAMES) {
             let description = ''
             if (data.source)
