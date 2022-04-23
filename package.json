@@ -1,23 +1,29 @@
 {
   "name": "discord-bot",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Beyond 20 Discord Bot",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "bot": "node index.js"
+    "bot": "node index.js",
+    "register-commands": "node register-slash-commands.js"
   },
   "author": "KaKaRoTo",
   "license": "GPL-3.0-or-later",
   "dependencies": {
+    "@discordjs/builders": "^0.13.0",
+    "@discordjs/rest": "^0.4.1",
     "body-parser": "^1.19.0",
     "cors": "^2.8.5",
     "cryptr": "^6.0.1",
-    "discord.js": "^12.0.1",
+    "discord-api-types": "^0.31.2",
+    "discord.js": "^13.6.0",
     "dotenv": "^8.2.0",
     "dotenv-expand": "^5.1.0",
     "errorhandler": "^1.5.1",
+    "eslint": "^8.14.0",
     "express": "^4.17.1",
+    "fs-extra": "^10.1.0",
     "http": "0.0.0",
     "http-errors": "^1.7.3",
     "morgan": "^1.9.1",

@@ -3,56 +3,59 @@ const Discord = require("discord.js");
 const TurndownService = require('turndown')
 const Cryptr = require("cryptr");
 const { WhisperType } = require("./constants");
-
+const fs = require('fs-extra');
+const path = require('path');
 const crypt = new Cryptr(process.env.SECRET_KEY_CHANNEL_PASSWORD);
+
+const commandsDir = path.resolve(__dirname, './commands');
 
 const turndownService = new TurndownService()
 
 class Bot {
     constructor() {
-        this.client = new Discord.Client({shards: "auto"});
+        this.client = new Discord.Client({ intents: [Discord.Intents.FLAGS.GUILDS] });
+        this.client.commands = new Discord.Collection();
+        const commandFiles = fs.readdirSync(commandsDir).filter(file => file.endsWith('.js'));
+        
+        for (const file of commandFiles) {
+            const command = require(path.join(commandsDir, file));
+            // Set a new item in the Collection
+            // With the key as the command name and the value as the exported module
+            this.client.commands.set(command.data.name, command);
+        }
 
-        this.client.once('ready', async () => {
+        this.client.once('ready', () => {
             logger.info(`Logged in as ${this.client.user.username}!`);
         });
-        this.client.on('shardReady', async (id) => {
+        this.client.on('shardReady', (id) => {
             logger.info(`Shard ${id} is now ready!`);
         });
-        this.client.on('message', this._onMessageReceived.bind(this));
-        this.client.login(process.env.BOT_TOKEN);
-    }
-
-    async _onMessageReceived(message) {
-        const prefix = message.channel.type === "dm" ? "" : process.env.BEYOND20_MESSAGE_PREFIX;
-
-        if (process.env.RESTRICT_TO_AUTHOR && message.author.id !== process.env.RESTRICT_TO_AUTHOR) return;
-        if (message.author.bot || !message.content.startsWith(prefix)) return;
-        const from = message.channel.type === "dm" ? `from ${message.author.username}` : `on '${message.channel.guild.name}'#${message.channel.name}`
-        logger.debug(`Received message ${from} (${message.channel.type})  : ${message.content}`);
-        let content = message.content.slice(prefix.length).trim();
-        if (content.startsWith(process.env.BEYOND20_MESSAGE_PREFIX)) content = content.slice(process.env.BEYOND20_MESSAGE_PREFIX.length).trim();
-        if (content.startsWith('!')) content = content.slice(1).trim();
-
-        const args = content === "" ? ["info"] : content.split(/ +/);
-        const command = args.shift().toLowerCase();
-        try {
-            if (this[`command_${command}`] instanceof Function)
-                await this[`command_${command}`](message, ...args)
-        } catch (err) {
-            try {
-                message.channel.send('Error executing command : ' + err.message, {reply: message})
-            } catch {
-                // ignore error
-            }
-            logger.error(err);
+        if (process.env.DEBUG) {
+            this.client.on('debug', (info) => {
+                console.log(info);
+            });
         }
+        this.client.on('error', (err) => {
+            console.error("Discord Error ", err);
+        });
+        this.client.on('interactionCreate', this._onInteractionReceived.bind(this));
+        this.client.login(process.env.BOT_TOKEN);
+        this.client.Beyond20Bot = this;
     }
 
-    command_ping(message) {
-        message.channel.send("pong!", {reply: message});
-    }
-	command_stats(message) {
-		message.channel.send(`Server count: ${this.client.guilds.cache.size}`);
+    async _onInteractionReceived(interaction) {
+        if (!interaction.isCommand()) return;
+
+        const command = this.client.commands.get(interaction.commandName);
+
+        if (!command) return;
+
+        try {
+            await command.execute(interaction);
+        } catch (error) {
+            console.error(error);
+            await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
+        }
     }
     
     async getMentionFromMessage(message, destination) {
@@ -109,9 +112,6 @@ class Bot {
             throw new Error("Can't create DM channel with owner.")
         }
 
-    }
-    command_info(message) {
-        message.channel.send(`To get the secret key to send rolls to it, type \`${process.env.BEYOND20_MESSAGE_PREFIX} secret\` in any channel of a server you own and which the bot has access to.\nFor more information, visit : https://beyond20.here-for-more.info/discord`, {reply: message});
     }
 
     async roll(data) {
