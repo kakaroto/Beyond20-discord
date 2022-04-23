@@ -19,7 +19,6 @@ class Bot {
             logger.info(`Shard ${id} is now ready!`);
         });
         this.client.on('message', this._onMessageReceived.bind(this));
-        this.client.on('messageReactionAdd', this._onMessageReactionAdded.bind(this));
         this.client.login(process.env.BOT_TOKEN);
     }
 
@@ -42,12 +41,11 @@ class Bot {
         } catch (err) {
             try {
                 message.channel.send('Error executing command : ' + err.message, {reply: message})
-            } catch {}
+            } catch {
+                // ignore error
+            }
             logger.error(err);
         }
-    }
-    _onMessageReactionAdded(messageReaction, user) {
-        //logger.debug(`Message reaction added by ${user.username} : ${messageReaction.emoji.name}`);
     }
 
     command_ping(message) {
@@ -125,7 +123,9 @@ class Bot {
         let options = "";
         try {
             secret = crypt.decrypt(data.secret);
-        } catch (err) {}
+        } catch (err) {
+            // ignore error
+        }
         if (!secret)
             return {error: "An invalid Secret Key was provided"};
         try {
@@ -247,7 +247,7 @@ class Bot {
         for (let attack of data.attack_rolls) {
             rollEmbed.addField(rollToDetails(attack), rollToSpoiler(attack), true)
         }
-        for (let [name, roll, flags] of data.damage_rolls) {
+        for (let [name, roll] of data.damage_rolls) {
             if (typeof(roll) === "string") {
                 rollEmbed.addField(name, roll)
             } else {

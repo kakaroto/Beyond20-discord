@@ -18,16 +18,16 @@ class Server {
 
         app.use(logger('dev'));
         app.use(bodyParser.json());
-        app.get('/', (req, res, next)  => {
+        app.get('/', (req, res)  => {
             res.redirect(process.env.MAIN_URL)
         });
 
-        app.get("/invite", (req, res, next) => {
+        app.get("/invite", (req, res) => {
             res.redirect(process.env.INVITE_URL);
         });
 
         app.options("/roll", cors);
-        app.post("/roll", cors, async (req, res, next) => {
+        app.post("/roll", cors, async (req, res) => {
             try {
                 res.json(await this.bot.roll(req.body));
             } catch (err) {
@@ -42,7 +42,7 @@ class Server {
             // only use in development
             app.use(errorHandler());
         } else {
-            app.use((err, req, res, next) => {
+            app.use((err, req, res) => {
             if (err.status != 404) console.error(err);
             res.locals.message = err.message;
             res.locals.error = req.app.get('env') === 'development' ? err : {};
