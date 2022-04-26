@@ -58,6 +58,7 @@ class Server {
             console.log(' App is running at http://%s:%d in %s mode', this.app.get('host'), this.app.get('port'), this.app.get('env'));
             console.log('  Press CTRL-C to stop\n');
         });
+        console.log(`Invite URL is : ${process.env.INVITE_URL}`);
     }
 }
 
