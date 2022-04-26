@@ -24,7 +24,7 @@ module.exports = {
             return interaction.reply({content: 'Only the server owner can use this command.', ephemeral: true});
         }
 
-        let destination = interaction.channelId;
+        let destination = interaction.channel;
         const channel = interaction.options.getChannel("channel");
         const whisper = interaction.options.getChannel("whisper");
         const whisperDM = interaction.options.getUser("whisper-user");
@@ -33,7 +33,7 @@ module.exports = {
             if (!['GUILD_TEXT', 'GUILD_PUBLIC_THREAD', 'GUILD_PRIVATE_THREAD'].includes(channel.type)) {
                 return interaction.reply({ content: "Error: Can only specify a text channel", ephemeral: true});
             }
-            destination = channel.id;
+            destination = channel;
         }
         if (whisper && whisperDM) {
             return interaction.reply({ content: "Error: Cannot specify both a whisper channel and a whisper DM destination", ephemeral: true});
@@ -50,7 +50,7 @@ module.exports = {
 
         const options = [];
         if (spoilers === false) options.push("nospoilers"); // Defaults to true
-        const plainSecret = {destination, whisper: whisperDestination, options: options.join(" ")};
+        const plainSecret = {destination: destination.id, whisper: whisperDestination, options: options.join(" ")};
         const secret = crypt.encrypt(JSON.stringify(plainSecret));
         await interaction.reply({
             content: `The secret key to send the Beyond20 rolls to the channel #${destination.name} is : \`${secret}\`\nYou can share it with your party as anyone with the key can send rolls to the channel.`,
