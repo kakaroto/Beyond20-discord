@@ -74,15 +74,17 @@ class Bot {
             return {error: "An invalid Secret Key was provided"};
         try {
             const json = JSON.parse(secret);
-            channelID = json.destination || secret;
+            channelID = json.destination;
             if (data.request.whisper === WhisperType.YES && json.whisper) {
                 channelID = json.whisper;
                 data.request.whisper = WhisperType.NO;
             }
             options = json.options || "";
         } catch(err) {
-            channelID = secret;
+            // ignore error
         }
+        if (!channelID)
+            return {error: "An invalid Secret Key was provided"};
         return {channelID, options};
     }
 
