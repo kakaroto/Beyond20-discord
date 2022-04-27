@@ -93,9 +93,17 @@ class Bot {
         return this.rollToChannel(data, channelID, options);
     }
     async rollToChannel(data, channelID, options) {
-        let channel = this.client.channels.resolve(channelID);
-        if (!channel)
-            channel = await this.client.channels.fetch(channelID);
+        let channel = null;
+        try {
+            if (channelID) {
+                channel = this.client.channels.resolve(channelID);
+                if (!channel) {
+                    channel = await this.client.channels.fetch(channelID);
+                }
+            }
+        } catch {
+            channel = null;
+        }
         if (!channel)
             return {error: "This key is invalid or the Beyond20 Discord Bot is not in the channel anymore.", noguild: true};
 
@@ -224,7 +232,7 @@ class Bot {
         if (!nospoiler)
             result += '||';
         return result;
-    };
+    }
 }
 
 module.exports = Bot;
