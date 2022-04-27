@@ -21,4 +21,5 @@ COPY public public/
 
 
 EXPOSE 8080
-ENTRYPOINT [ "node", "index.js" ]
+ENTRYPOINT [ "node" ]
+CMD [ "index.js" ]
