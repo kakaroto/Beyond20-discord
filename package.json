@@ -1,6 +1,6 @@
 {
   "name": "discord-bot",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "Beyond 20 Discord Bot",
   "main": "index.js",
   "scripts": {
