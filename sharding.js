@@ -11,7 +11,10 @@ class ShardedBot {
     }
 
     async roll(data) {
-        const {channelID, options} = Bot.parseToChannel(data);
+        const {channelID, options, error} = Bot.parseToChannel(data);
+        if (error) {
+            return {error};
+        }
         // Execute the roll on all shards
         const results = await this.manager.broadcastEval(function (client, context) {
             const {data, channelID, options} = context;
