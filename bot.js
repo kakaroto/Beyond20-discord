@@ -51,7 +51,7 @@ class Bot {
         if (!command) return;
 
         try {
-            await command.execute(interaction);
+            await command.execute(interaction, this);
         } catch (error) {
             console.error(error);
             await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
@@ -134,61 +134,6 @@ class Bot {
         for (let [name, value] of data.roll_info)
             rollEmbed.addField(name, value)
 
-        const rollToDetails = (roll) => {
-            const total = roll.total || 0;
-            if (roll.discarded) return `~~${total}~~`;
-            let string = String(total).replace(/-/g, ':no_entry:')
-                .replace(/\+/g, ':heavy_plus_sign:')
-                .replace(/10/g, ':keycap_ten:')
-                .replace(/1/g, ':one:')
-                .replace(/2/g, ':two:')
-                .replace(/3/g, ':three:')
-                .replace(/4/g, ':four:')
-                .replace(/5/g, ':five:')
-                .replace(/6/g, ':six:')
-                .replace(/7/g, ':seven:')
-                .replace(/8/g, ':eight:')
-                .replace(/9/g, ':nine:')
-                .replace(/0/g, ':zero:');
-            if (roll['critical-success']) string += ' :green_circle:';
-            if (roll['critical-failure']) string += ' :red_circle:';
-            return string;
-        }
-        const rollToSpoiler = (roll) => {
-            const nospoiler = options.includes("nospoilers");
-            if (data.request.whisper === WhisperType.HIDE_NAMES) return nospoiler ? ':game_die:' : '||:game_die:||'
-            const formula = roll.formula || "";
-            const parts = roll.parts || [];
-            let result = nospoiler ? "" : `||`;
-            result += `:game_die: ${formula} :arrow_right: `;
-            let plus = '';
-            for (let part of parts) {
-                if (part.rolls) {
-                    result += `${plus}(`
-                    let part_plus = '';
-                    for (let die of part.rolls) {
-                        result += die.discarded ? `~~${part_plus}${die.roll}~~` : `${part_plus}${die.roll}`;
-                        part_plus = ' + ';
-                    }
-                    result += ')';
-                } else {
-                    if (['+', '-'].includes(String(part).trim())) {
-                        plus = ` ${part} `;
-                    } else {
-                        part = isNaN(part) ? part : Number(part);
-                        if (part < 0) {
-                            part = -1 * part;
-                            plus = ' - ';
-                        }
-                        result += `${plus}${part}`;
-                    }
-                }
-                plus = ' + ';
-            }
-            if (!nospoiler)
-                result += '||';
-            return result;
-        };
         const critical_success = data.attack_rolls.some(roll => !roll.discarded && roll['critical-success']);
         const critical_fail = data.attack_rolls.some(roll => !roll.discarded && roll['critical-failure']);
         if (critical_success && critical_fail)
@@ -200,20 +145,20 @@ class Bot {
         else
             rollEmbed.setColor('#999999')
         for (let attack of data.attack_rolls) {
-            rollEmbed.addField(rollToDetails(attack), rollToSpoiler(attack), true)
+            rollEmbed.addField(this.rollToDetails(attack), this.rollToSpoiler(attack, data.request.whisper, options), true)
         }
         for (let [name, roll] of data.damage_rolls) {
             if (typeof(roll) === "string") {
                 rollEmbed.addField(name, roll)
             } else {
-                const detail = rollToDetails(roll)
-                const spoiler = rollToSpoiler(roll)
+                const detail = this.rollToDetails(roll)
+                const spoiler = this.rollToSpoiler(roll, data.request.whisper, options)
                 rollEmbed.addField(`**${name.trim()} :** ${detail}`, spoiler)
             }
         }
         for (let name in data.total_damages) {
-            const detail = rollToDetails(data.total_damages[name])
-            const spoiler = rollToSpoiler(data.total_damages[name])
+            const detail = this.rollToDetails(data.total_damages[name])
+            const spoiler = this.rollToSpoiler(data.total_damages[name], data.request.whisper, options)
             rollEmbed.addField(`**Total ${name} :** ${detail}`, spoiler)
         }
 
@@ -224,6 +169,62 @@ class Bot {
         }
         return {}
     }
+
+    rollToDetails(roll) {
+        const total = roll.total || 0;
+        if (roll.discarded) return `~~${total}~~`;
+        let string = String(total).replace(/-/g, ':no_entry:')
+            .replace(/\+/g, ':heavy_plus_sign:')
+            .replace(/10/g, ':keycap_ten:')
+            .replace(/1/g, ':one:')
+            .replace(/2/g, ':two:')
+            .replace(/3/g, ':three:')
+            .replace(/4/g, ':four:')
+            .replace(/5/g, ':five:')
+            .replace(/6/g, ':six:')
+            .replace(/7/g, ':seven:')
+            .replace(/8/g, ':eight:')
+            .replace(/9/g, ':nine:')
+            .replace(/0/g, ':zero:');
+        if (roll['critical-success']) string += ' :green_circle:';
+        if (roll['critical-failure']) string += ' :red_circle:';
+        return string;
+    }
+    rollToSpoiler(roll, whisper=WhisperType.NO, options="") {
+        const nospoiler = options.includes("nospoilers");
+        if (whisper === WhisperType.HIDE_NAMES) return nospoiler ? ':game_die:' : '||:game_die:||'
+        const formula = roll.formula || "";
+        const parts = roll.parts || [];
+        let result = nospoiler ? "" : `||`;
+        result += `:game_die: ${formula} :arrow_right: `;
+        let plus = '';
+        for (let part of parts) {
+            if (part.rolls) {
+                result += `${plus}(`
+                let part_plus = '';
+                for (let die of part.rolls) {
+                    result += die.discarded ? `~~${part_plus}${die.roll}~~` : `${part_plus}${die.roll}`;
+                    part_plus = ' + ';
+                }
+                result += ')';
+            } else {
+                if (['+', '-'].includes(String(part).trim())) {
+                    plus = ` ${part} `;
+                } else {
+                    part = isNaN(part) ? part : Number(part);
+                    if (part < 0) {
+                        part = -1 * part;
+                        plus = ' - ';
+                    }
+                    result += `${plus}${part}`;
+                }
+            }
+            plus = ' + ';
+        }
+        if (!nospoiler)
+            result += '||';
+        return result;
+    };
 }
 
 module.exports = Bot;
