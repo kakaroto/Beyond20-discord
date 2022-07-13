@@ -28,7 +28,7 @@
     "http-errors": "^1.7.3",
     "morgan": "^1.9.1",
     "node-html-to-image": "^1.1.0",
-    "turndown": "^5.0.3",
+    "turndown": "^7.1.1",
     "winston": "^3.2.1"
   }
 }
