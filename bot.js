@@ -215,6 +215,7 @@ class Bot {
                     part_plus = ' + ';
                 }
                 result += ')';
+                plus = ' + ';
             } else {
                 if (['+', '-'].includes(String(part).trim())) {
                     plus = ` ${part} `;
@@ -225,9 +226,9 @@ class Bot {
                         plus = ' - ';
                     }
                     result += `${plus}${part}`;
+                    plus = ' + ';
                 }
             }
-            plus = ' + ';
         }
         if (!nospoiler)
             result += '||';
