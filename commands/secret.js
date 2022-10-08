@@ -2,6 +2,8 @@ const { SlashCommandBuilder } = require('@discordjs/builders');
 const Cryptr = require("cryptr");
 const crypt = new Cryptr(process.env.SECRET_KEY_CHANNEL_PASSWORD);
 
+const channelTypes = ['GUILD_TEXT', 'GUILD_PUBLIC_THREAD', 'GUILD_PRIVATE_THREAD', 'GUILD_VOICE']
+
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('secret')
@@ -30,7 +32,7 @@ module.exports = {
         const whisperDM = interaction.options.getUser("whisper-user");
         const spoilers = interaction.options.getBoolean("spoilers");
         if (channel) {
-            if (!['GUILD_TEXT', 'GUILD_PUBLIC_THREAD', 'GUILD_PRIVATE_THREAD'].includes(channel.type)) {
+            if (!channelTypes.includes(channel.type)) {
                 return interaction.reply({ content: "Error: Can only specify a text channel", ephemeral: true});
             }
             destination = channel;
@@ -40,7 +42,7 @@ module.exports = {
         }
         let whisperDestination = null;
         if (whisper) {
-            if (!['GUILD_TEXT', 'GUILD_PUBLIC_THREAD', 'GUILD_PRIVATE_THREAD'].includes(whisper.type)) {
+            if (!channelTypes.includes(whisper.type)) {
                 return interaction.reply({ content: "Error: Can only specify a text channel for whisper destination", ephemeral: true});
             }
             whisperDestination = whisper.id;
