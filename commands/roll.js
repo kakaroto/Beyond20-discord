@@ -1,6 +1,7 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const Discord = require("discord.js");
 const { DNDBRoll } = require("../dice");
+const { WhisperType } = require("../constants");
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -21,13 +22,17 @@ module.exports = {
                 .setDescription("The description for the roll"))
         .addBooleanOption(option => 
             option.setName('whisper')
-                .setDescription("Whisper the result to self")),
+                .setDescription("Whisper the result to self"))
+        .addBooleanOption(option => 
+            option.setName('plaintext')
+                .setDescription("Display the result in plaintext")),
 	async execute(interaction, bot) {
         const formula = interaction.options.getString("formula");
         const whisper = interaction.options.getBoolean("whisper");
         const title = interaction.options.getString("title");
         const name = interaction.options.getString("name");
         const description = interaction.options.getString("description");
+        const plaintext = interaction.options.getBoolean("plaintext");
         const roll = new DNDBRoll(formula);
         await roll.roll();
         const rollData = roll.toJSON();
@@ -52,7 +57,10 @@ module.exports = {
             rollEmbed.setColor('#990000')
         else
             rollEmbed.setColor('#999999')
-        rollEmbed.addField(bot.rollToDetails(rollData), bot.rollToSpoiler(rollData));
+        // set up options
+        const options = [];
+        if (plaintext) options.push("plaintext");
+        rollEmbed.addField(bot.rollToDetails(rollData, options), bot.rollToSpoiler(rollData, WhisperType.NO, options));
 		await interaction.reply({
             embeds: [rollEmbed],
             ephemeral: whisper === true
