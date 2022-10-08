@@ -25,7 +25,10 @@ module.exports = {
                 .setDescription("Whisper the result to self"))
         .addBooleanOption(option => 
             option.setName('spoilers')
-                .setDescription("Set whether or not roll details should be hidden behind spoiler tags")),
+                .setDescription("Set whether or not roll details should be hidden behind spoiler tags"))
+        .addBooleanOption(option => 
+            option.setName('plaintext')
+                .setDescription("Display the result in plaintext")),
 	async execute(interaction, bot) {
         const formula = interaction.options.getString("formula");
         const whisper = interaction.options.getBoolean("whisper");
@@ -33,6 +36,7 @@ module.exports = {
         const name = interaction.options.getString("name");
         const description = interaction.options.getString("description");
         const spoilers = interaction.options.getBoolean("spoilers") ?? true;
+        const plaintext = interaction.options.getBoolean("plaintext");
         const roll = new DNDBRoll(formula);
         await roll.roll();
         const rollData = roll.toJSON();
@@ -61,6 +65,8 @@ module.exports = {
         const options = [];
         if (!spoilers) options.push("nospoilers");
         rollEmbed.addField(bot.rollToDetails(rollData), bot.rollToSpoiler(rollData, WhisperType.NO, options));
+        if (plaintext) options.push("plaintext");
+        rollEmbed.addField(bot.rollToDetails(rollData, options), bot.rollToSpoiler(rollData, WhisperType.NO, options));
 		await interaction.reply({
             embeds: [rollEmbed],
             ephemeral: whisper === true
