@@ -181,6 +181,7 @@ class Bot {
     rollToDetails(roll, options="") {
         const total = roll.total || 0;
         if (roll.discarded) return `~~${total}~~`;
+        if (options.includes("plaintext")) return String(total); // skip all emoji and criticals
         let string = String(total).replace(/-/g, ':no_entry:')
             .replace(/\+/g, ':heavy_plus_sign:')
             .replace(/10/g, ':keycap_ten:')
@@ -194,7 +195,6 @@ class Bot {
             .replace(/8/g, ':eight:')
             .replace(/9/g, ':nine:')
             .replace(/0/g, ':zero:');
-        if (options.includes("plaintext")) string = String(total); // undo all replacement
         if (roll['critical-success']) string += ' :green_circle:';
         if (roll['critical-failure']) string += ' :red_circle:';
         return string;
