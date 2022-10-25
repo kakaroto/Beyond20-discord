@@ -178,9 +178,10 @@ class Bot {
         return {}
     }
 
-    rollToDetails(roll) {
+    rollToDetails(roll, options="") {
         const total = roll.total || 0;
         if (roll.discarded) return `~~${total}~~`;
+        if (options.includes("plaintext")) return String(total); // skip all emoji and criticals
         let string = String(total).replace(/-/g, ':no_entry:')
             .replace(/\+/g, ':heavy_plus_sign:')
             .replace(/10/g, ':keycap_ten:')
@@ -200,11 +201,12 @@ class Bot {
     }
     rollToSpoiler(roll, whisper=WhisperType.NO, options="") {
         const nospoiler = options.includes("nospoilers");
+        const plaintext = options.includes("plaintext");
         if (whisper === WhisperType.HIDE_NAMES) return nospoiler ? ':game_die:' : '||:game_die:||'
         const formula = roll.formula || "";
         const parts = roll.parts || [];
         let result = nospoiler ? "" : `||`;
-        result += `:game_die: ${formula} :arrow_right: `;
+        result += plaintext ? `${formula} → ` : `:game_die: ${formula} :arrow_right: `;
         let plus = '';
         for (let part of parts) {
             if (part.rolls) {
