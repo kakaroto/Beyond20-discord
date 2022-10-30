@@ -64,7 +64,6 @@ module.exports = {
         // set up options
         const options = [];
         if (!spoilers) options.push("nospoilers");
-        rollEmbed.addField(bot.rollToDetails(rollData), bot.rollToSpoiler(rollData, WhisperType.NO, options));
         if (plaintext) options.push("plaintext");
         rollEmbed.addField(bot.rollToDetails(rollData, options), bot.rollToSpoiler(rollData, WhisperType.NO, options));
 		await interaction.reply({
