@@ -170,6 +170,9 @@ class Bot {
             rollEmbed.addField(`**Total ${name} :** ${detail}`, spoiler)
         }
 
+        if (data.request.type === "chat-message") {
+            rollEmbed.setDescription(data.request.message);
+        }
         try {
             await channel.send({embeds: [rollEmbed]});
         } catch (err) {
