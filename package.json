@@ -17,7 +17,7 @@
     "cors": "^2.8.5",
     "cryptr": "^6.0.1",
     "discord-api-types": "^0.31.2",
-    "discord.js": "^13.11.0",
+    "discord.js": "^13.16.0",
     "dotenv": "^8.2.0",
     "dotenv-expand": "^5.1.0",
     "errorhandler": "^1.5.1",
