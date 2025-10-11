@@ -18,3 +18,7 @@ BOT_TOKEN=<bot token>
 
 SECRET_KEY_CHANNEL_PASSWORD=<secret encryption key>
 ```
+
+## Role-Based Access
+
+By default, only the Discord server owner can use the `/secret` command to generate secret keys for channels. However, server owners can create a role named **"Beyond20 Admin"** and assign it to trusted users to grant them access to the `/secret` command as well.

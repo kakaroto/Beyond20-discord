@@ -22,8 +22,11 @@ module.exports = {
                 .setDescription("Set whether or not roll details should be hidden behind spoiler tags")),
 	async execute(interaction) {
         const owner = interaction.guild.ownerId;
-        if (interaction.user.id !== owner) {
-            return interaction.reply({content: 'Only the server owner can use this command.', ephemeral: true});
+        const isOwner = interaction.user.id === owner;
+        const hasAdminRole = interaction.member.roles.cache.some(role => role.name === 'Beyond20 Admin');
+        
+        if (!isOwner && !hasAdminRole) {
+            return interaction.reply({content: 'Only the server owner or users with the "Beyond20 Admin" role can use this command.', ephemeral: true});
         }
 
         let destination = interaction.channel;
