@@ -13,7 +13,7 @@ const turndownService = new TurndownService()
 
 class Bot {
     constructor() {
-        this.client = new Discord.Client({ intents: [Discord.Intents.FLAGS.GUILDS] });
+        this.client = new Discord.Client({ intents: [Discord.Intents.FLAGS.GUILDS, Discord.Intents.FLAGS.GUILD_MEMBERS] });
         this.client.commands = new Discord.Collection();
         const commandFiles = fs.readdirSync(commandsDir).filter(file => file.endsWith('.js'));
         
